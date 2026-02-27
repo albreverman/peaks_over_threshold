@@ -1,0 +1,38 @@
+---
+title: "log_drainage_area"
+author: "Avital Breverman"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+
+# Computes a time separation criterion, in days, between events in a PDS to ensure independence
+# U.S. Water Resources Council, 1976
+# DA drainage area in square miles
+# Returns days between events
+B17_days_between <- function(DA) {
+  ceiling(5 + log(DA))
+}
+```
+
+```{r}
+DA <- exp(0:13) # Natural log spacing
+t <- B17_days_between(DA) # Days between, t
+
+DA_t <- tibble(DA = DA,
+               t = t,
+               exp_label = paste0("e^", round(log(DA), 2)))
+```
+
+```{r}
+ggplot(DA_t, aes(x = DA, y = t)) +
+  geom_point() +
+  geom_text(aes(label = exp_label), parse = TRUE, hjust = 1.5) +
+  scale_x_continuous(labels = scales::label_comma()) +
+  xlab("Drainage Area (square miles)") +
+  ylab("Days Between Peaks") +
+  ylim(0, 20) +
+  theme_bw()
+```
